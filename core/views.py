@@ -80,7 +80,7 @@ class SourceMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = SourceMetadata.objects.all()
     serializer_class = SourceMetadataSerializer
 
-class SourceSummaryViewSet(viewsets.ReadOnlyModelViewSet):
+class SourceSummaryViewSet(viewsets.ModelViewSet):
     queryset = SourceSummary.objects.all()
     serializer_class = SourceSummarySerializer
 
