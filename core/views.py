@@ -7,6 +7,7 @@ from django.contrib.auth.models import User
 # Create your views here.
 
 class ProjectViewSet(viewsets.ModelViewSet):
+    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
 
     def get_queryset(self):
@@ -17,6 +18,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return queryset
 
 class JiraConfigViewSet(viewsets.ModelViewSet):
+    queryset = JiraConfig.objects.all()
     serializer_class = JiraConfigSerializer
 
     def get_queryset(self):
@@ -27,6 +29,7 @@ class JiraConfigViewSet(viewsets.ModelViewSet):
         return queryset
 
 class MailConfigViewSet(viewsets.ModelViewSet):
+    queryset = MailConfig.objects.all()
     serializer_class = MailConfigSerializer
 
     def get_queryset(self):
@@ -37,6 +40,7 @@ class MailConfigViewSet(viewsets.ModelViewSet):
         return queryset
 
 class NotebookViewSet(viewsets.ModelViewSet):
+    queryset = Notebook.objects.all()
     serializer_class = NotebookSerializer
 
     def get_queryset(self):
@@ -50,6 +54,7 @@ class NotebookViewSet(viewsets.ModelViewSet):
         return queryset
 
 class SourceViewSet(viewsets.ModelViewSet):
+    queryset = Source.objects.all()
     serializer_class = SourceSerializer
 
     def get_queryset(self):
@@ -80,6 +85,7 @@ class SourceSummaryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SourceSummarySerializer
 
 class OutputViewSet(viewsets.ModelViewSet):
+    queryset = Output.objects.all()
     serializer_class = OutputSerializer
 
     def get_queryset(self):
