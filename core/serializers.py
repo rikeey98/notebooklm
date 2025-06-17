@@ -25,7 +25,8 @@ class NotebookSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class SourceSerializer(serializers.ModelSerializer):
-    metadata = serializers.DictField(write_only=True)
+    tag = serializers.ListField(child=serializers.CharField(), write_only=True)
+    content = serializers.CharField(write_only=True)
     summary = serializers.CharField(write_only=True)
     metadata_detail = serializers.SerializerMethodField(read_only=True)
     summary_detail = serializers.SerializerMethodField(read_only=True)
@@ -33,7 +34,7 @@ class SourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Source
         fields = '__all__'
-        extra_fields = ['metadata', 'summary', 'metadata_detail', 'summary_detail']
+        extra_fields = ['tag', 'content', 'summary', 'metadata_detail', 'summary_detail']
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -54,15 +55,16 @@ class SourceSerializer(serializers.ModelSerializer):
         return None
 
     def create(self, validated_data):
-        metadata_data = validated_data.pop('metadata')
+        tag = validated_data.pop('tag')
+        content = validated_data.pop('content')
         summary_data = validated_data.pop('summary')
         source = super().create(validated_data)
         from .models import SourceMetadata, SourceSummary
         SourceMetadata.objects.create(
             source=source,
             title=source.title,
-            tag=metadata_data.get('tag', []),
-            content=metadata_data.get('content', '')
+            tag=tag,
+            content=content
         )
         SourceSummary.objects.create(
             source=source,
