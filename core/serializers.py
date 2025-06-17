@@ -28,31 +28,11 @@ class SourceSerializer(serializers.ModelSerializer):
     notebook = serializers.IntegerField(write_only=True)
     tag = serializers.ListField(child=serializers.CharField(), write_only=True, required=False, default=list)
     content = serializers.CharField(write_only=True)
-    metadata_detail = serializers.SerializerMethodField(read_only=True)
-    summary_detail = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Source
         fields = '__all__'
-        extra_fields = ['notebook', 'tag', 'content', 'metadata_detail', 'summary_detail']
-
-    def to_representation(self, instance):
-        rep = super().to_representation(instance)
-        rep['metadata'] = self.get_metadata_detail(instance)
-        rep['summary'] = self.get_summary_detail(instance)
-        return rep
-
-    def get_metadata_detail(self, obj):
-        from .serializers import SourceMetadataSerializer
-        if hasattr(obj, 'sourcemetadata'):
-            return SourceMetadataSerializer(obj.sourcemetadata).data
-        return None
-
-    def get_summary_detail(self, obj):
-        from .serializers import SourceSummarySerializer
-        if hasattr(obj, 'sourcesummary'):
-            return SourceSummarySerializer(obj.sourcesummary).data
-        return None
+        extra_fields = ['notebook', 'tag', 'content']
 
     def create(self, validated_data):
         notebook_id = validated_data.pop('notebook')
@@ -70,6 +50,27 @@ class SourceSerializer(serializers.ModelSerializer):
         notebook = Notebook.objects.get(id=notebook_id)
         NotebookMap.objects.create(notebook=notebook, source=source)
         return source
+
+class SourceDetailSerializer(serializers.ModelSerializer):
+    metadata = serializers.SerializerMethodField(read_only=True)
+    summary = serializers.SerializerMethodField(read_only=True)
+
+    class Meta:
+        model = Source
+        fields = '__all__'
+        extra_fields = ['metadata', 'summary']
+
+    def get_metadata(self, obj):
+        from .serializers import SourceMetadataSerializer
+        if hasattr(obj, 'sourcemetadata'):
+            return SourceMetadataSerializer(obj.sourcemetadata).data
+        return None
+
+    def get_summary(self, obj):
+        from .serializers import SourceSummarySerializer
+        if hasattr(obj, 'sourcesummary'):
+            return SourceSummarySerializer(obj.sourcesummary).data
+        return None
 
 class NotebookMapSerializer(serializers.ModelSerializer):
     class Meta:

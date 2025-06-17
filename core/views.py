@@ -57,6 +57,12 @@ class SourceViewSet(viewsets.ModelViewSet):
     queryset = Source.objects.all()
     serializer_class = SourceSerializer
 
+    def get_serializer_class(self):
+        if self.action == 'retrieve':
+            from .serializers import SourceDetailSerializer
+            return SourceDetailSerializer
+        return super().get_serializer_class()
+
     def get_queryset(self):
         queryset = Source.objects.all()
         user_id = self.request.query_params.get('user_id')
