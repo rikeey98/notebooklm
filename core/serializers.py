@@ -25,45 +25,48 @@ class NotebookSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class SourceSerializer(serializers.ModelSerializer):
-    metadata = serializers.SerializerMethodField(read_only=True)
-    summary = serializers.SerializerMethodField(read_only=True)
+    metadata = serializers.DictField(write_only=True)
+    summary = serializers.CharField(write_only=True)
+    metadata_detail = serializers.SerializerMethodField(read_only=True)
+    summary_detail = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Source
         fields = '__all__'
-        extra_fields = ['metadata', 'summary']
+        extra_fields = ['metadata', 'summary', 'metadata_detail', 'summary_detail']
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
-        rep['metadata'] = self.get_metadata(instance)
-        rep['summary'] = self.get_summary(instance)
+        rep['metadata'] = self.get_metadata_detail(instance)
+        rep['summary'] = self.get_summary_detail(instance)
         return rep
 
-    def get_metadata(self, obj):
+    def get_metadata_detail(self, obj):
         from .serializers import SourceMetadataSerializer
         if hasattr(obj, 'sourcemetadata'):
             return SourceMetadataSerializer(obj.sourcemetadata).data
         return None
 
-    def get_summary(self, obj):
+    def get_summary_detail(self, obj):
         from .serializers import SourceSummarySerializer
         if hasattr(obj, 'sourcesummary'):
             return SourceSummarySerializer(obj.sourcesummary).data
         return None
 
     def create(self, validated_data):
+        metadata_data = validated_data.pop('metadata')
+        summary_data = validated_data.pop('summary')
         source = super().create(validated_data)
-        # SourceMetadata와 SourceSummary 자동 생성
         from .models import SourceMetadata, SourceSummary
         SourceMetadata.objects.create(
             source=source,
             title=source.title,
-            tag=[],
-            content=''
+            tag=metadata_data.get('tag', []),
+            content=metadata_data.get('content', '')
         )
         SourceSummary.objects.create(
             source=source,
-            summary=''
+            summary=summary_data
         )
         return source
 
