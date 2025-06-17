@@ -25,6 +25,7 @@ class NotebookSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class SourceSerializer(serializers.ModelSerializer):
+    notebook = serializers.IntegerField(write_only=True)
     tag = serializers.ListField(child=serializers.CharField(), write_only=True)
     content = serializers.CharField(write_only=True)
     summary = serializers.CharField(write_only=True)
@@ -34,7 +35,7 @@ class SourceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Source
         fields = '__all__'
-        extra_fields = ['tag', 'content', 'summary', 'metadata_detail', 'summary_detail']
+        extra_fields = ['notebook', 'tag', 'content', 'summary', 'metadata_detail', 'summary_detail']
 
     def to_representation(self, instance):
         rep = super().to_representation(instance)
@@ -55,11 +56,12 @@ class SourceSerializer(serializers.ModelSerializer):
         return None
 
     def create(self, validated_data):
+        notebook_id = validated_data.pop('notebook')
         tag = validated_data.pop('tag')
         content = validated_data.pop('content')
         summary_data = validated_data.pop('summary')
         source = super().create(validated_data)
-        from .models import SourceMetadata, SourceSummary
+        from .models import SourceMetadata, SourceSummary, Notebook, NotebookMap
         SourceMetadata.objects.create(
             source=source,
             title=source.title,
@@ -70,6 +72,9 @@ class SourceSerializer(serializers.ModelSerializer):
             source=source,
             summary=summary_data
         )
+        # NotebookMap 생성
+        notebook = Notebook.objects.get(id=notebook_id)
+        NotebookMap.objects.create(notebook=notebook, source=source)
         return source
 
 class NotebookMapSerializer(serializers.ModelSerializer):
