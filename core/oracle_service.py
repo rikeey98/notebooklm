@@ -1,5 +1,13 @@
-import cx_Oracle
+import os
 from django.conf import settings
+
+# 환경변수 세팅 (프로젝트 루트에 instantclient, oracle_config 폴더가 있다고 가정)
+INSTANT_CLIENT_PATH = os.path.join(settings.BASE_DIR, 'instantclient')
+TNS_ADMIN_PATH = os.path.join(settings.BASE_DIR, 'oracle_config')
+os.environ['PATH'] = INSTANT_CLIENT_PATH + os.pathsep + os.environ.get('PATH', '')
+os.environ['TNS_ADMIN'] = TNS_ADMIN_PATH
+
+import cx_Oracle
 
 def insert_data_to_oracle(param1, param2):
     conn = cx_Oracle.connect(settings.ORACLE_DSN, settings.ORACLE_USER, settings.ORACLE_PASSWORD)
