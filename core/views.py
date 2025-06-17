@@ -17,12 +17,24 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return queryset
 
 class JiraConfigViewSet(viewsets.ModelViewSet):
-    queryset = JiraConfig.objects.all()
     serializer_class = JiraConfigSerializer
 
+    def get_queryset(self):
+        queryset = JiraConfig.objects.all()
+        project_id = self.request.query_params.get('project')
+        if project_id is not None:
+            queryset = queryset.filter(project_id=project_id)
+        return queryset
+
 class MailConfigViewSet(viewsets.ModelViewSet):
-    queryset = MailConfig.objects.all()
     serializer_class = MailConfigSerializer
+
+    def get_queryset(self):
+        queryset = MailConfig.objects.all()
+        project_id = self.request.query_params.get('project')
+        if project_id is not None:
+            queryset = queryset.filter(project_id=project_id)
+        return queryset
 
 class NotebookViewSet(viewsets.ModelViewSet):
     serializer_class = NotebookSerializer
