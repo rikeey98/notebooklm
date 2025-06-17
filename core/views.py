@@ -1,7 +1,8 @@
 from django.shortcuts import render
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions, serializers
 from .models import *
 from .serializers import *
+from django.contrib.auth.models import User
 
 # Create your views here.
 
@@ -40,3 +41,13 @@ class SourceSummaryViewSet(viewsets.ModelViewSet):
 class OutputViewSet(viewsets.ModelViewSet):
     queryset = Output.objects.all()
     serializer_class = OutputSerializer
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
+
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+    permission_classes = [permissions.AllowAny]

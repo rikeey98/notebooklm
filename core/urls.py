@@ -11,5 +11,6 @@ router.register(r'notebook-maps', NotebookMapViewSet)
 router.register(r'source-metadata', SourceMetadataViewSet)
 router.register(r'source-summary', SourceSummaryViewSet)
 router.register(r'outputs', OutputViewSet)
+router.register(r'users', UserViewSet)
 
 urlpatterns = router.urls 
