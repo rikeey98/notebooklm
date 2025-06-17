@@ -68,6 +68,7 @@ class SourceViewSet(viewsets.ModelViewSet):
         user_id = self.request.query_params.get('user_id')
         project_id = self.request.query_params.get('project')
         notebook_id = self.request.query_params.get('notebook')
+        title = self.request.query_params.get('title')
         if user_id is not None:
             queryset = queryset.filter(create_user_id=user_id)
         if project_id is not None:
@@ -76,6 +77,8 @@ class SourceViewSet(viewsets.ModelViewSet):
             from .models import NotebookMap
             source_ids = NotebookMap.objects.filter(notebook_id=notebook_id).values_list('source_id', flat=True)
             queryset = queryset.filter(id__in=source_ids)
+        if title is not None:
+            queryset = queryset.filter(title__icontains=title)
         return queryset
 
 class NotebookMapViewSet(viewsets.ModelViewSet):
