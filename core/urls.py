@@ -1,5 +1,7 @@
 from rest_framework import routers
 from .views import *
+from .views import OracleInsertView
+from django.urls import path
 
 router = routers.DefaultRouter()
 router.register(r'projects', ProjectViewSet)
@@ -13,4 +15,6 @@ router.register(r'source-summary', SourceSummaryViewSet)
 router.register(r'outputs', OutputViewSet)
 router.register(r'users', UserViewSet)
 
-urlpatterns = router.urls 
+urlpatterns = router.urls + [
+    path('oracle-insert/', OracleInsertView.as_view(), name='oracle-insert'),
+] 

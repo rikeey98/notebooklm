@@ -3,6 +3,10 @@ from rest_framework import viewsets, permissions, serializers
 from .models import *
 from .serializers import *
 from django.contrib.auth.models import User
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from .oracle_service import insert_data_to_oracle
 
 # Create your views here.
 
@@ -124,3 +128,15 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 # name = self.request.query_params.get('name')
 # if name is not None:
 #     queryset = queryset.filter(name__icontains=name)
+
+class OracleInsertView(APIView):
+    def post(self, request):
+        param1 = request.data.get('param1')
+        param2 = request.data.get('param2')
+        if param1 is None or param2 is None:
+            return Response({'error': 'param1, param2는 필수입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            insert_data_to_oracle(param1, param2)
+            return Response({'result': 'success'}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
