@@ -16,6 +16,7 @@ class MailConfig(models.Model):
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
 
 class Notebook(models.Model):
+    name = models.CharField(max_length=200, default='unnamed-notebook')
     project = models.ForeignKey(Project, on_delete=models.CASCADE)
     create_user = models.ForeignKey(User, on_delete=models.CASCADE)
     create_time = models.DateTimeField(auto_now_add=True)

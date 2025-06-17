@@ -110,3 +110,8 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [permissions.AllowAny]
+
+# NotebookViewSet 등은 name 필드 자동 반영됨. name으로 필터링 원하면 아래와 같이 추가 가능:
+# name = self.request.query_params.get('name')
+# if name is not None:
+#     queryset = queryset.filter(name__icontains=name)
