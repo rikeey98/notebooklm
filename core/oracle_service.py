@@ -20,4 +20,16 @@ def insert_data_to_oracle(param1, param2):
         raise
     finally:
         cur.close()
+        conn.close()
+
+def select_data_from_oracle(query, dsn, user, password, params=None):
+    conn = cx_Oracle.connect(user, password, dsn)
+    try:
+        cur = conn.cursor()
+        cur.execute(query, params or {})
+        columns = [col[0] for col in cur.description]
+        results = [dict(zip(columns, row)) for row in cur.fetchall()]
+        return results
+    finally:
+        cur.close()
         conn.close() 
