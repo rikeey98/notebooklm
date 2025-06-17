@@ -30,11 +30,11 @@ class NotebookMapViewSet(viewsets.ModelViewSet):
     queryset = NotebookMap.objects.all()
     serializer_class = NotebookMapSerializer
 
-class SourceMetadataViewSet(viewsets.ModelViewSet):
+class SourceMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = SourceMetadata.objects.all()
     serializer_class = SourceMetadataSerializer
 
-class SourceSummaryViewSet(viewsets.ModelViewSet):
+class SourceSummaryViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = SourceSummary.objects.all()
     serializer_class = SourceSummarySerializer
 

@@ -25,9 +25,47 @@ class NotebookSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class SourceSerializer(serializers.ModelSerializer):
+    metadata = serializers.SerializerMethodField(read_only=True)
+    summary = serializers.SerializerMethodField(read_only=True)
+
     class Meta:
         model = Source
         fields = '__all__'
+        extra_fields = ['metadata', 'summary']
+
+    def to_representation(self, instance):
+        rep = super().to_representation(instance)
+        rep['metadata'] = self.get_metadata(instance)
+        rep['summary'] = self.get_summary(instance)
+        return rep
+
+    def get_metadata(self, obj):
+        from .serializers import SourceMetadataSerializer
+        if hasattr(obj, 'sourcemetadata'):
+            return SourceMetadataSerializer(obj.sourcemetadata).data
+        return None
+
+    def get_summary(self, obj):
+        from .serializers import SourceSummarySerializer
+        if hasattr(obj, 'sourcesummary'):
+            return SourceSummarySerializer(obj.sourcesummary).data
+        return None
+
+    def create(self, validated_data):
+        source = super().create(validated_data)
+        # SourceMetadata와 SourceSummary 자동 생성
+        from .models import SourceMetadata, SourceSummary
+        SourceMetadata.objects.create(
+            source=source,
+            title=source.title,
+            tag=[],
+            content=''
+        )
+        SourceSummary.objects.create(
+            source=source,
+            summary=''
+        )
+        return source
 
 class NotebookMapSerializer(serializers.ModelSerializer):
     class Meta:
