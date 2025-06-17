@@ -7,8 +7,14 @@ from django.contrib.auth.models import User
 # Create your views here.
 
 class ProjectViewSet(viewsets.ModelViewSet):
-    queryset = Project.objects.all()
     serializer_class = ProjectSerializer
+
+    def get_queryset(self):
+        queryset = Project.objects.all()
+        user_id = self.request.query_params.get('user_id')
+        if user_id is not None:
+            queryset = queryset.filter(user_id=user_id)
+        return queryset
 
 class JiraConfigViewSet(viewsets.ModelViewSet):
     queryset = JiraConfig.objects.all()
@@ -19,12 +25,35 @@ class MailConfigViewSet(viewsets.ModelViewSet):
     serializer_class = MailConfigSerializer
 
 class NotebookViewSet(viewsets.ModelViewSet):
-    queryset = Notebook.objects.all()
     serializer_class = NotebookSerializer
 
+    def get_queryset(self):
+        queryset = Notebook.objects.all()
+        user_id = self.request.query_params.get('user_id')
+        project_id = self.request.query_params.get('project_id')
+        if user_id is not None:
+            queryset = queryset.filter(create_user_id=user_id)
+        if project_id is not None:
+            queryset = queryset.filter(project_id=project_id)
+        return queryset
+
 class SourceViewSet(viewsets.ModelViewSet):
-    queryset = Source.objects.all()
     serializer_class = SourceSerializer
+
+    def get_queryset(self):
+        queryset = Source.objects.all()
+        user_id = self.request.query_params.get('user_id')
+        project_id = self.request.query_params.get('project')
+        notebook_id = self.request.query_params.get('notebook')
+        if user_id is not None:
+            queryset = queryset.filter(create_user_id=user_id)
+        if project_id is not None:
+            queryset = queryset.filter(project_id=project_id)
+        if notebook_id is not None:
+            from .models import NotebookMap
+            source_ids = NotebookMap.objects.filter(notebook_id=notebook_id).values_list('source_id', flat=True)
+            queryset = queryset.filter(id__in=source_ids)
+        return queryset
 
 class NotebookMapViewSet(viewsets.ModelViewSet):
     queryset = NotebookMap.objects.all()
@@ -39,8 +68,20 @@ class SourceSummaryViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = SourceSummarySerializer
 
 class OutputViewSet(viewsets.ModelViewSet):
-    queryset = Output.objects.all()
     serializer_class = OutputSerializer
+
+    def get_queryset(self):
+        queryset = Output.objects.all()
+        user_id = self.request.query_params.get('user')
+        project_id = self.request.query_params.get('project')
+        notebook_id = self.request.query_params.get('notebook')
+        if user_id is not None:
+            queryset = queryset.filter(create_user_id=user_id)
+        if project_id is not None:
+            queryset = queryset.filter(project_id=project_id)
+        if notebook_id is not None:
+            queryset = queryset.filter(notebook_id=notebook_id)
+        return queryset
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
