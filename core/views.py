@@ -7,6 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .oracle_service import insert_data_to_oracle
+from rest_framework.decorators import api_view
+from django.db import transaction
 
 # Create your views here.
 
@@ -140,3 +142,25 @@ class OracleInsertView(APIView):
             return Response({'result': 'success'}, status=status.HTTP_201_CREATED)
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class BulkDeleteSourceView(APIView):
+    def delete(self, request):
+        project_id = request.query_params.get('project_id')
+        notebook_id = request.query_params.get('notebook_id')
+        user_id = request.query_params.get('user_id')
+        params = [p for p in [project_id, notebook_id, user_id] if p is not None]
+        if len(params) == 0:
+            return Response({'error': 'project_id, notebook_id, user_id 중 하나는 필수입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        if len(params) > 1:
+            return Response({'error': '한 번에 하나의 파라미터만 허용됩니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        count = 0
+        with transaction.atomic():
+            if project_id is not None:
+                count, _ = Source.objects.filter(project_id=project_id).delete()
+            elif notebook_id is not None:
+                from .models import NotebookMap
+                source_ids = NotebookMap.objects.filter(notebook_id=notebook_id).values_list('source_id', flat=True)
+                count, _ = Source.objects.filter(id__in=source_ids).delete()
+            elif user_id is not None:
+                count, _ = Source.objects.filter(create_user_id=user_id).delete()
+        return Response({'deleted': count}, status=status.HTTP_200_OK)

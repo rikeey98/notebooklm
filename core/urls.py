@@ -17,4 +17,5 @@ router.register(r'users', UserViewSet)
 
 urlpatterns = router.urls + [
     path('oracle-insert/', OracleInsertView.as_view(), name='oracle-insert'),
+    path('sources/bulk_delete/', BulkDeleteSourceView.as_view(), name='bulk-delete-source'),
 ] 
