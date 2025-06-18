@@ -1,6 +1,5 @@
 from rest_framework import routers
 from .views import *
-from .views import OracleInsertView
 from django.urls import path
 
 router = routers.DefaultRouter()
@@ -16,6 +15,6 @@ router.register(r'outputs', OutputViewSet)
 router.register(r'users', UserViewSet)
 
 urlpatterns = router.urls + [
-    path('oracle-insert/', OracleInsertView.as_view(), name='oracle-insert'),
-    path('sources/bulk_delete/', BulkDeleteSourceView.as_view(), name='bulk-delete-source'),
+    path('source-bulk-delete/', BulkDeleteSourceView.as_view(), name='bulk-delete-source'),
+    path('send-mail/', SendMailView.as_view(), name='send-mail'),
 ] 

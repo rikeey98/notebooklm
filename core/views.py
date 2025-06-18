@@ -9,6 +9,7 @@ from rest_framework import status
 from .oracle_service import insert_data_to_oracle
 from rest_framework.decorators import api_view
 from django.db import transaction
+from .mail_send_service import save_mail_to_mongodb
 
 # Create your views here.
 
@@ -131,18 +132,6 @@ class UserViewSet(viewsets.ReadOnlyModelViewSet):
 # if name is not None:
 #     queryset = queryset.filter(name__icontains=name)
 
-class OracleInsertView(APIView):
-    def post(self, request):
-        param1 = request.data.get('param1')
-        param2 = request.data.get('param2')
-        if param1 is None or param2 is None:
-            return Response({'error': 'param1, param2는 필수입니다.'}, status=status.HTTP_400_BAD_REQUEST)
-        try:
-            insert_data_to_oracle(param1, param2)
-            return Response({'result': 'success'}, status=status.HTTP_201_CREATED)
-        except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
 class BulkDeleteSourceView(APIView):
     def delete(self, request):
         project_id = request.query_params.get('project_id')
@@ -164,3 +153,16 @@ class BulkDeleteSourceView(APIView):
             elif user_id is not None:
                 count, _ = Source.objects.filter(create_user_id=user_id).delete()
         return Response({'deleted': count}, status=status.HTTP_200_OK)
+
+class SendMailView(APIView):
+    def post(self, request):
+        title = request.data.get('title')
+        content = request.data.get('content')
+        recipients = request.data.get('recipients')
+        if not title or not content or not recipients:
+            return Response({'error': 'title, content, recipients는 모두 필수입니다.'}, status=status.HTTP_400_BAD_REQUEST)
+        try:
+            inserted_id = save_mail_to_mongodb(title, content, recipients)
+            return Response({'result': 'success', 'id': inserted_id}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
