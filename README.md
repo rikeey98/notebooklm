@@ -155,6 +155,7 @@ POST /api/notebooks/
 | notebook  | int     | 필수    | 연결할 노트북 id|
 | content   | str     | 필수    | 소스 내용      |
 | tag       | list(str)| 옵션   | 태그 목록(기본값: 빈 리스트) |
+| link      | str(URL) | 옵션   | 관련 URL 링크(없으면 null/빈 값) |
 
 #### 예시
 ```
@@ -165,9 +166,13 @@ POST /api/sources/
   "create_user": 1,
   "notebook": 2,
   "content": "소스 내용",
-  "tag": ["태그1", "태그2"]
+  "tag": ["태그1", "태그2"],
+  "link": "https://example.com"
 }
 ```
+
+- link는 입력하지 않으면 null 또는 빈 값으로 저장됩니다.
+- metadata 반환 시 link 필드도 함께 반환됩니다.
 
 ---
 

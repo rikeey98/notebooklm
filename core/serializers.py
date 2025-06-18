@@ -28,23 +28,26 @@ class SourceSerializer(serializers.ModelSerializer):
     notebook = serializers.IntegerField(write_only=True)
     tag = serializers.ListField(child=serializers.CharField(), write_only=True, required=False, default=list)
     content = serializers.CharField(write_only=True)
+    link = serializers.URLField(write_only=True, required=False, allow_null=True, default=None)
 
     class Meta:
         model = Source
         fields = '__all__'
-        extra_fields = ['notebook', 'tag', 'content']
+        extra_fields = ['notebook', 'tag', 'content', 'link']
 
     def create(self, validated_data):
         notebook_id = validated_data.pop('notebook')
         tag = validated_data.pop('tag')
         content = validated_data.pop('content')
+        link = validated_data.pop('link', None)
         source = super().create(validated_data)
         from .models import SourceMetadata, Notebook, NotebookMap
         SourceMetadata.objects.create(
             source=source,
             title=source.title,
             tag=tag,
-            content=content
+            content=content,
+            link=link
         )
         # NotebookMap 생성
         notebook = Notebook.objects.get(id=notebook_id)
@@ -78,6 +81,7 @@ class NotebookMapSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class SourceMetadataSerializer(serializers.ModelSerializer):
+    link = serializers.URLField(required=False, allow_null=True, default=None)
     class Meta:
         model = SourceMetadata
         fields = '__all__'

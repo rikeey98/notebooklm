@@ -37,6 +37,7 @@ class SourceMetadata(models.Model):
     title = models.CharField(max_length=200, unique=True)
     tag = models.JSONField(default=list)  # 태그 리스트
     content = models.TextField()
+    link = models.URLField(null=True, blank=True)  # url link 필드 추가
 
 class SourceSummary(models.Model):
     source = models.OneToOneField(Source, on_delete=models.CASCADE, primary_key=True)
